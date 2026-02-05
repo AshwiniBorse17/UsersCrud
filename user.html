@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users Page</title>
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Users Page</h1>
+
+    <div class="top-bar">
+       <input type="text" placeholder="Search users..." class="searchInput" />
+        <button class="add-btn addUserBtn">Add User</button>
+    </div>
+
+    <table class="usersTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Gender</th>
+                <th>Status</th>
+                <th>Action</th> 
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+
+
+    <div class="modal userModal">
+    <div class="modal-content">
+        <h2>Add New User</h2>
+
+        <input class="name" placeholder="Name" />
+        <input class="email" placeholder="Email" />
+
+        <select class="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        </select>
+
+        <select class="status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        </select>
+
+        <div class="modal-actions">
+        <button class="saveUser">Save</button>
+        <button class="closeModal">Cancel</button>
+        </div>
+    </div>
+    </div>
+
+
+</div>
+
+<script src="user.js"></script>
+</body>
+</html>
