@@ -1,40 +1,53 @@
-  const apiUrl = "https://gorest.co.in/public/v2/users";
-  const token = "5d713e4fab3225de8619cd3f50c50985e0322877c8e4c084ceab08cb3dc79c2a";
-  const searchInput = document.querySelector(".searchInput");
-
-  const tableBody = document.querySelector(".usersTable tbody");
-
-  const modal = document.querySelector(".userModal");
-  const addUserBtn = document.querySelector(".addUserBtn");
-  const closeModal = document.querySelector(".closeModal");
-  const saveUser = document.querySelector(".saveUser");
-
-  const nameInput = document.querySelector(".name");
-  const emailInput = document.querySelector(".email");
-  const genderInput = document.querySelector(".gender");
-  const statusInput = document.querySelector(".status");
 
 
-  const capitalize = (text) =>
-    text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+const apiUrl = "https://gorest.co.in/public/v2/users";
+const token = "5d713e4fab3225de8619cd3f50c50985e0322877c8e4c084ceab08cb3dc79c2a";
+const searchInput = document.querySelector(".searchInput");
+
+const tableBody = document.querySelector(".usersTable tbody");
+
+const modal = document.querySelector(".userModal");
+const addUserBtn = document.querySelector(".addUserBtn");
+const closeModal = document.querySelector(".closeModal");
+const saveUser = document.querySelector(".saveUser");
+
+const nameInput = document.querySelector(".name");
+const emailInput = document.querySelector(".email");
+const genderInput = document.querySelector(".gender");
+const statusInput = document.querySelector(".status");
+const textField1 = document.querySelector(".small1");
+const textField2 = document.querySelector(".small2");
 
 
-  const fetchUsers = () => {
-    tableBody.innerHTML = "";
+nameInput.after(textField1);
+emailInput.after(textField2);
 
-    fetch(apiUrl, { cache: "no-store" })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(users => users.forEach(createRow))
-      .catch(() => alert("Unable to load users"));
-  };
+const capitalize = (text) =>
+  text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 
-  const createRow = (user) => {
-    const row = document.createElement("tr");
 
-    row.innerHTML = `
+const fetchUsers = () => {
+  tableBody.innerHTML = "";
+
+  fetch(apiUrl, {
+    cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(users => users.forEach(createRow))
+    .catch(() => alert("Unable to load users"));
+};
+
+
+const createRow = (user) => {
+  const row = document.createElement("tr");
+
+  html = `
       <td>${user.id}</td>
       <td contenteditable="false">${user.name}</td>
       <td contenteditable="false">${user.email}</td>
@@ -46,106 +59,136 @@
       </td>
     `;
 
-    row.querySelector(".edit-btn").onclick = () => editRow(row);
-    row.querySelector(".remove-btn").onclick = () => removeRow(row);
+  row.innerHTML = html;
+  row.querySelector(".edit-btn").onclick = () => editRow(row);
+  row.querySelector(".remove-btn").onclick = () => removeRow(row);
 
-    tableBody.appendChild(row);
-  };
+  tableBody.appendChild(row);
+};
 
-  const removeRow = (row) => {
-    const userId = row.children[0].innerText;
+const removeRow = (row) => {
+  const userId = row.children[0].innerText;
 
-    fetch(`${apiUrl}/${userId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        row.remove();
-      })
-      .catch(() => alert("Delete failed"));
-  };
-
-  const editRow = (row) => {
-    const btn = row.querySelector(".edit-btn");
-    const cells = row.querySelectorAll("td:not(:last-child)");
-    const userId = row.children[0].innerText;
-
-    if (btn.innerText === "Edit") {
-      cells.forEach(cell => cell.contentEditable = "true");
-      btn.innerText = "Save";
-    } else {
-      const updatedUser = {
-        name: cells[1].innerText.trim(),
-        email: cells[2].innerText.trim(),
-        gender: cells[3].innerText.trim().toLowerCase(),
-        status: cells[4].innerText.trim().toLowerCase()
-      };
-
-      fetch(`${apiUrl}/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedUser)
-      })
-        .then(res => {
-          if (!res.ok) throw new Error();
-          cells[3].innerText = capitalize(updatedUser.gender);
-          cells[4].innerText = capitalize(updatedUser.status);
-          cells.forEach(cell => cell.contentEditable = "false");
-          btn.innerText = "Edit";
-        })
-        .catch(() => alert("Update failed"));
+  fetch(`${apiUrl}/${userId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  };
+  })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      fetchUsers();
+    })
+    .catch(() => alert("Delete failed"));
+};
 
 
-  addUserBtn.onclick = () => modal.style.display = "flex";
-  closeModal.onclick = () => modal.style.display = "none";
+const editRow = (row) => {
+  const btn = row.querySelector(".edit-btn");
+  const cells = row.querySelectorAll("td:not(:last-child)");
+  const userId = row.children[0].innerText;
 
-  saveUser.onclick = () => {
-    const newUser = {
-      name: nameInput.value.trim(),
-      email: `user${Date.now()}@mail.com`,
-      gender: genderInput.value,
-      status: statusInput.value
+  if (btn.innerText === "Edit") {
+    cells.forEach(cell => cell.contentEditable = "true");
+    btn.innerText = "Save";
+  } else {
+    const updatedUser = {
+      name: cells[1].innerText.trim(),
+      email: cells[2].innerText.trim(),
+      gender: cells[3].innerText.trim().toLowerCase(),
+      status: cells[4].innerText.trim().toLowerCase()
     };
 
-    fetch(apiUrl, {
-      method: "POST",
+    fetch(`${apiUrl}/${userId}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(newUser)
+      body: JSON.stringify(updatedUser)
     })
-      .then(res => res.json())
-      .then(user => {
-        createRow(user);
-        tableBody.prepend(tableBody.lastChild);
-
-        modal.style.display = "none";
-        nameInput.value = "";
-        emailInput.value = "";
+      .then(res => {
+        if (!res.ok) throw new Error();
+        cells[3].innerText = capitalize(updatedUser.gender);
+        cells[4].innerText = capitalize(updatedUser.status);
+        cells.forEach(cell => cell.contentEditable = "false");
+        btn.innerText = "Edit";
       })
-      .catch(() => alert("User creation failed"));
+      .catch(() => alert("Update failed"));
+  }
+};
+
+
+addUserBtn.onclick = () => modal.style.display = "flex";
+closeModal.onclick = () => modal.style.display = "none";
+
+saveUser.onclick = () => {
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+  const gender = genderInput.value;
+  const status = statusInput.value;
+
+  let isValid = true;
+  textField1.innerText = "";
+  textField2.innerText = "";
+
+  if (!name) {
+    textField1.innerText = "Name cannot be empty";
+    isValid = false;
+  }
+
+  const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  if (!gmailRegex.test(email)) {
+    textField2.innerText = "Enter a valid Gmail address (@gmail.com)";
+    isValid = false;
+  }
+
+  if (!isValid) return;
+
+  const newUser = {
+    name,
+    email,
+    gender,
+    status
   };
 
-  const filterUsers = (value) => {
-    const rows = document.querySelectorAll(".usersTable tbody tr");
+  fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(newUser)
+  })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(user => {
+      const row = createRow(user);
+      tableBody.prepend(row);
 
-    value = value.toLowerCase();
+      modal.style.display = "none";
+      nameInput.value = "";
+      emailInput.value = "";
+    })
+    .catch(() => alert("User creation failed"));
+};
 
-    rows.forEach(row => {
-      const text = row.innerText.toLowerCase();
-      row.style.display = text.includes(value) ? "" : "none";
-    });
-  };
 
-  searchInput.addEventListener("input", (e) => {
-    filterUsers(e.target.value);
+const filterUsers = (value) => {
+  const rows = document.querySelectorAll(".usersTable tbody tr");
+
+  value = value.toLowerCase();
+
+  rows.forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(value) ? "" : "none";
   });
+};
 
-  fetchUsers();
+searchInput.addEventListener("input", (e) => {
+  filterUsers(e.target.value);
+});
+
+fetchUsers();
